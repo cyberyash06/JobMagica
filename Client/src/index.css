@@ -1,71 +1,557 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-
+/* ========================================
+   CSS VARIABLES & THEMING
+   ======================================== */
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --primaryAccent: #06b6d4;
+  --secondaryAccent: #8b5cf6;
+  --mutedText: #64748b;
+  --cardBg: rgba(255, 255, 255, 0.1);
+  --glassBorder: rgba(255, 255, 255, 0.2);
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --bg-light: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  --bg-dark: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+[data-theme="dark"] {
+  --cardBg: rgba(15, 23, 42, 0.6);
+  --glassBorder: rgba(148, 163, 184, 0.1);
+  --mutedText: #94a3b8;
 }
-a:hover {
-  color: #535bf2;
+
+/* ========================================
+   GLOBAL RESETS
+   ======================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg-light);
+  color: #1e293b;
+  transition: all 0.3s ease;
+}
+
+[data-theme="dark"] body {
+  background: var(--bg-dark);
+  color: #f1f5f9;
+}
+
+#root {
   min-height: 100vh;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+/* ========================================
+   LAYOUT
+   ======================================== */
+.app-container {
+  display: flex;
+  min-height: 100vh;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  margin-left: 280px;
+  transition: margin-left 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    padding: 1rem;
+  }
+}
+
+/* Page Container */
+.page-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-header h1 {
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, var(--primaryAccent), var(--secondaryAccent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ========================================
+   GLASSMORPHISM COMPONENTS
+   ======================================== */
+.glass-card {
+  background: var(--cardBg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glassBorder);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+  border-color: var(--primaryAccent);
+}
+
+/* ========================================
+   BUTTONS
+   ======================================== */
+.btn-primary {
+  background: linear-gradient(135deg, var(--primaryAccent), var(--secondaryAccent));
+  color: white;
+  border: none;
+  padding: 0.875rem 2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(6, 182, 212, 0.3);
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+.btn-primary:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 24px rgba(6, 182, 212, 0.4);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-secondary {
+  background: rgba(148, 163, 184, 0.1);
+  color: var(--mutedText);
+  border: 1px solid var(--glassBorder);
+  padding: 0.875rem 2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(148, 163, 184, 0.2);
+  transform: scale(1.05);
+}
+
+/* ========================================
+   UPLOAD COMPONENTS
+   ======================================== */
+.upload-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.drop-zone {
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 2px dashed var(--glassBorder);
+  transition: all 0.3s ease;
+  margin-bottom: 2rem;
+}
+
+.drop-zone.dragging {
+  border-color: var(--primaryAccent);
+  background: rgba(6, 182, 212, 0.05);
+}
+
+.upload-prompt {
+  text-align: center;
+}
+
+.upload-icon {
+  font-size: 4rem;
+  color: var(--primaryAccent);
+  margin-bottom: 1rem;
+}
+
+.file-selected {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.file-icon {
+  font-size: 3rem;
+  color: var(--success);
+}
+
+.btn-upload {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}
+
+/* ========================================
+   MATCH SCORE
+   ======================================== */
+.match-score-container {
+  text-align: center;
+}
+
+.score-gauge {
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem 0;
+}
+
+.score-text {
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.score-label {
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
+
+/* ========================================
+   TYPOGRAPHY
+   ======================================== */
+h1 {
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+h2 {
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+h3 {
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.text-muted {
+  color: var(--mutedText);
+  font-size: 0.95rem;
+}
+
+/* ========================================
+   LOADING STATES
+   ======================================== */
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.spinner-large {
+  width: 60px;
+  height: 60px;
+  border: 4px solid rgba(6, 182, 212, 0.2);
+  border-top-color: var(--primaryAccent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--cardBg) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    var(--cardBg) 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+  border-radius: 8px;
+}
+
+/* ========================================
+   OVERLAYS & MODALS
+   ======================================== */
+.processing-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.processing-card {
+  text-align: center;
+  max-width: 400px;
+}
+
+/* ========================================
+   ERROR STATES
+   ======================================== */
+.error-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.error-card {
+  text-align: center;
+  max-width: 500px;
+}
+
+.error-banner {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--danger);
+  color: var(--danger);
+  padding: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* ========================================
+   ACTION BUTTONS
+   ======================================== */
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ========================================
+   SIDEBAR
+   ======================================== */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 280px;
+  padding: 2rem 1.5rem;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.sidebar-header {
+  margin-bottom: 3rem;
+}
+
+.logo {
+  font-size: 1.75rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.logo-icon {
+  font-size: 2rem;
+}
+
+.logo-subtitle {
+  font-size: 0.875rem;
+  color: var(--mutedText);
+  font-weight: 500;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 12px;
+  color: var(--mutedText);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.nav-item:hover {
+  background: rgba(6, 182, 212, 0.1);
+  color: var(--primaryAccent);
+}
+
+.nav-item.active {
+  background: linear-gradient(135deg, var(--primaryAccent), var(--secondaryAccent));
+  color: white;
+  box-shadow: 0 4px 16px rgba(6, 182, 212, 0.3);
+}
+
+.nav-icon {
+  font-size: 1.25rem;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 2rem;
+}
+
+.milestone-badge {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: rgba(139, 92, 246, 0.1);
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.badge-label {
+  font-size: 0.875rem;
+  color: var(--secondaryAccent);
+  font-weight: 600;
+}
+
+/* ========================================
+   MOBILE MENU
+   ======================================== */
+.mobile-menu-btn {
+  display: none;
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 200;
+  background: var(--cardBg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glassBorder);
+  border-radius: 12px;
+  padding: 0.75rem;
+  cursor: pointer;
+  font-size: 1.5rem;
+  color: var(--primaryAccent);
+}
+
+.sidebar-overlay {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-btn {
+    display: block;
   }
-  a:hover {
-    color: #747bff;
+  
+  .sidebar {
+    transform: translateX(-100%);
   }
-  button {
-    background-color: #f9f9f9;
+  
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+  }
+}
+
+/* ========================================
+   THEME TOGGLE
+   ======================================== */
+.theme-toggle {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.toggle-container {
+  width: 60px;
+  height: 32px;
+  border-radius: 16px;
+  position: relative;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-slider {
+  position: absolute;
+  top: 2px;
+  width: 28px;
+  height: 28px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-icon {
+  font-size: 1rem;
+  color: var(--primaryAccent);
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+/* ========================================
+   ACCESSIBILITY
+   ======================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
