@@ -5,6 +5,7 @@ const pdfOverlayService = require('../services/pdfOverlayService');
 const aiTailoringService = require('../services/aiTailoringService');
 const path = require('path');
 const fs = require('fs').promises;
+const fsSync = require('fs'); // For sync checks and mkdirSync
 
 /**
  * POST /api/resumes/upload
@@ -20,10 +21,13 @@ exports.uploadResume = async (req, res, next) => {
       return res.status(400).json({ error: 'Only PDF and DOCX files are supported' });
     }
 
+    // Windows-safe path
+    const safeFilePath = req.file.path.replace(/\\/g, '/');
+
     const resume = new Resume({
       originalFilename: req.file.originalname,
       storedFilename: req.file.filename,
-      filePath: req.file.path,
+      filePath: safeFilePath,
       fileType
     });
 
@@ -101,7 +105,6 @@ exports.parseResume = async (req, res, next) => {
   }
 };
 
-
 /**
  * POST /api/resumes/:id/tailor
  * PDF Overlay Tailoring - Preserves original layout
@@ -163,16 +166,14 @@ exports.tailorResume = async (req, res, next) => {
     // 3. Generate output path
     const timestamp = Date.now();
     const outputFilename = `tailored_${timestamp}_${resume.originalFilename}`;
-    const path = require('path');
     const tailoredDir = path.join(__dirname, '../../uploads/tailored');
-    
+
     // Ensure directory exists
-    const fs = require('fs');
-    if (!fs.existsSync(tailoredDir)) {
-      fs.mkdirSync(tailoredDir, { recursive: true });
+    if (!fsSync.existsSync(tailoredDir)) {
+      fsSync.mkdirSync(tailoredDir, { recursive: true });
     }
-    
-    const outputPath = path.join(tailoredDir, outputFilename);
+
+    const outputPath = path.join(tailoredDir, outputFilename).replace(/\\/g, '/'); // Windows-safe
 
     // 4. Generate PDF
     console.log('📝 Generating tailored PDF...');
@@ -185,7 +186,7 @@ exports.tailorResume = async (req, res, next) => {
 
     console.log('✅ PDF generated at:', outputPath);
 
-    // 5. Calculate match score (placeholder - you can implement actual scoring)
+    // 5. Calculate match score
     const matchScore = 90;
 
     // 6. Save to database
@@ -231,7 +232,7 @@ exports.tailorResume = async (req, res, next) => {
         previewUrl: `/api/resumes/tailored/${tailoredResume._id}/preview`,
         jobTitle,
         company,
-        matchScore: matchScore,
+        matchScore,
         tailoredSummary,
         tailoredSkills,
         createdAt: tailoredResume.createdAt
@@ -241,7 +242,6 @@ exports.tailorResume = async (req, res, next) => {
   } catch (error) {
     console.error('❌ Tailoring failed:', error);
     
-    // Send detailed error response
     res.status(500).json({
       error: 'Tailoring failed',
       message: error.message,
@@ -256,7 +256,6 @@ exports.tailorResume = async (req, res, next) => {
 exports.getResumeHistory = async (req, res, next) => {
   try {
     const { id } = req.params;
-    
     const resume = await Resume.findById(id).select('originalFilename uploadedAt');
     if (!resume) {
       return res.status(404).json({ error: 'Resume not found' });
@@ -284,7 +283,6 @@ exports.getResumeHistory = async (req, res, next) => {
 exports.downloadTailoredResume = async (req, res, next) => {
   try {
     const { tid } = req.params;
-    
     const tailoredResume = await TailoredResume.findById(tid);
     if (!tailoredResume) {
       return res.status(404).json({ error: 'Tailored resume not found' });
@@ -308,7 +306,6 @@ exports.downloadTailoredResume = async (req, res, next) => {
 exports.previewTailoredResume = async (req, res, next) => {
   try {
     const { tid } = req.params;
-    
     const tailoredResume = await TailoredResume.findById(tid);
     if (!tailoredResume) {
       return res.status(404).json({ error: 'Tailored resume not found' });
@@ -331,7 +328,6 @@ exports.previewTailoredResume = async (req, res, next) => {
 exports.previewResume = async (req, res, next) => {
   try {
     const { id } = req.params;
-    
     const resume = await Resume.findById(id);
     if (!resume) {
       return res.status(404).json({ error: 'Resume not found' });

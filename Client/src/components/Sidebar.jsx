@@ -75,8 +75,7 @@ const Sidebar = () => {
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           >
             <div className="sidebar-header">
-              <h2 className="logo">
-                <span className="logo-icon">✨</span>
+              <h2 className="logo !text-black">
                 JobMagica
               </h2>
               <p className="logo-subtitle">Resume Tailoring</p>
@@ -105,10 +104,6 @@ const Sidebar = () => {
 
             <div className="sidebar-footer">
               <ThemeToggle />
-              <div className="milestone-badge">
-                <span className="badge-label">Milestone 1</span>
-                <span className="badge-version">v1.0</span>
-              </div>
             </div>
           </motion.aside>
         )}

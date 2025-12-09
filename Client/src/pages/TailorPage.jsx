@@ -11,11 +11,11 @@ import { useResume } from '../context/ResumeContext';
 const TailorPage = () => {
   const { id } = useParams();
   const { updateStep } = useResume();
-  
+
   useEffect(() => {
-    updateStep('tailor'); 
+    updateStep('tailor');
   }, []);
-  
+
   const navigate = useNavigate();
   const [jobData, setJobData] = useState({
     jobDescription: '',
@@ -43,10 +43,10 @@ const TailorPage = () => {
     try {
       const response = await tailorResume(id, jobData);
       console.log('✅ Full response:', response.data);
-      
+
       // ✅ FIXED: Extract correct data structure
       const result = response.data.tailoredResume;
-      
+
       if (!result || !result.id) {
         throw new Error('Invalid response: Missing tailored resume ID');
       }
@@ -67,7 +67,7 @@ const TailorPage = () => {
 
       console.log('✅ Transformed result:', transformedResult);
       setTailoringResult(transformedResult);
-      
+
     } catch (err) {
       console.error('❌ Tailoring error:', err);
       setError(err.response?.data?.message || err.message || 'Failed to tailor resume. Please try again.');
@@ -81,7 +81,7 @@ const TailorPage = () => {
       alert('No tailored resume available to download');
       return;
     }
-    
+
     try {
       const downloadUrl = `http://localhost:5000/api/resumes/tailored/${tailoringResult.tailoredId}/download`;
       console.log('📥 Downloading from:', downloadUrl);
@@ -132,12 +132,12 @@ const TailorPage = () => {
         {tailoringResult && (
           <div className="results-section">
             {/* ✅ Pass correct props to MatchScore */}
-            <MatchScore 
+            <MatchScore
               originalScore={tailoringResult.originalScore}
               tailoredScore={tailoringResult.tailoredScore}
               improvement={tailoringResult.improvement}
             />
-            
+
             <motion.div
               className="result-actions glass-card"
               initial={{ opacity: 0, y: 20 }}
@@ -148,19 +148,24 @@ const TailorPage = () => {
                 Your resume has been optimized with {tailoringResult.iterations} iteration(s)
                 {tailoringResult.improvement && ` • Improved by +${tailoringResult.improvement}%`}
               </p>
-              
+
               <div className="button-group">
                 <button className="btn-primary" onClick={handleDownload}>
                   Download Tailored Resume
                 </button>
-                <button className="btn-secondary" onClick={handleViewHistory}>
+                <button
+                  className="btn-secondary"
+                  style={{ marginLeft: '1rem' }}
+                  onClick={handleViewHistory}
+                >
                   View History
                 </button>
+
               </div>
             </motion.div>
 
             {/* ✅ Pass correct tailoredId */}
-            <SideBySidePreview 
+            <SideBySidePreview
               resumeId={id}
               tailoredId={tailoringResult.tailoredId}
             />

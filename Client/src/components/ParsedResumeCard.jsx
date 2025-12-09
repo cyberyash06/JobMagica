@@ -5,6 +5,7 @@ import { FiUser, FiMail, FiPhone, FiLinkedin, FiChevronDown, FiChevronUp } from 
 const ParsedResumeCard = ({ data }) => {
   const [expandedSections, setExpandedSections] = useState({
     contact: true,
+    summary: true,
     skills: true,
     experience: true,
     education: true
