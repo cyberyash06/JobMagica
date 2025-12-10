@@ -111,7 +111,7 @@ const JobDescriptionInput = ({ jobData, onChange, onSubmit, disabled }) => {
           </>
         ) : (
           <>
-            ✨ Tailor Resume
+            Tailor Resume
           </>
         )}
       </motion.button>

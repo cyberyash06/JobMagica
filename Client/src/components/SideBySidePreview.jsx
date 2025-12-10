@@ -36,8 +36,8 @@ const SideBySidePreview = ({ resumeId, tailoredId }) => {
             style={{
               padding: '0.5rem 1rem',
               borderRadius: '8px',
-              border: activeView === 'original' ? '2px solid var(--primaryAccent)' : '1px solid var(--glassBorder)',
-              background: activeView === 'original' ? 'var(--primaryAccent)' : 'transparent',
+              border: activeView === 'original' ? '1px solid var(--success)' : '1px solid var(--glassBorder)',
+              background: activeView === 'original' ? 'var(--success)' : 'transparent',
               color: activeView === 'original' ? 'white' : 'var(--mutedText)',
               cursor: 'pointer',
               display: 'flex',
@@ -54,8 +54,8 @@ const SideBySidePreview = ({ resumeId, tailoredId }) => {
             style={{
               padding: '0.5rem 1rem',
               borderRadius: '8px',
-              border: activeView === 'both' ? '2px solid var(--primaryAccent)' : '1px solid var(--glassBorder)',
-              background: activeView === 'both' ? 'var(--primaryAccent)' : 'transparent',
+              border: activeView === 'both' ? '1px solid var(--success)' : '1px solid var(--glassBorder)',
+              background: activeView === 'both' ? 'var(--success)' : 'transparent',
               color: activeView === 'both' ? 'white' : 'var(--mutedText)',
               cursor: 'pointer',
               display: 'flex',
@@ -72,7 +72,7 @@ const SideBySidePreview = ({ resumeId, tailoredId }) => {
             style={{
               padding: '0.5rem 1rem',
               borderRadius: '8px',
-              border: activeView === 'tailored' ? '2px solid var(--success)' : '1px solid var(--glassBorder)',
+              border: activeView === 'tailored' ? '1px solid var(--success)' : '1px solid var(--glassBorder)',
               background: activeView === 'tailored' ? 'var(--success)' : 'transparent',
               color: activeView === 'tailored' ? 'white' : 'var(--mutedText)',
               cursor: 'pointer',
@@ -122,7 +122,7 @@ const SideBySidePreview = ({ resumeId, tailoredId }) => {
                   fontWeight: 600
                 }}
               >
-                <FiFileText style={{ color: 'var(--primaryAccent)' }} />
+                <FiFileText style={{ color: '#0bdbb6' }} />
                 <span>Original Resume</span>
               </div>
               <iframe

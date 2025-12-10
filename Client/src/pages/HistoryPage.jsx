@@ -67,9 +67,9 @@ const HistoryPage = () => {
 
   const getScoreColor = (score) => {
     const percentage = score * 100;
-    if (percentage >= 90) return '#10b981';
-    if (percentage >= 80) return '#f59e0b';
-    return '#ef4444';
+    if (percentage >= 90) return '#0bdbb6';
+    if (percentage >= 80) return '#0bdbb6';
+    return '#0bdbb6';
   };
 
   if (loading) {
@@ -110,8 +110,8 @@ const HistoryPage = () => {
           <p className="text-muted">
             Upload your first resume to get started with AI-powered tailoring
           </p>
-          <button 
-            className="btn-primary" 
+          <button
+            className="btn-primary"
             onClick={() => navigate('/upload')}
             style={{ marginTop: '1.5rem' }}
           >
@@ -119,10 +119,10 @@ const HistoryPage = () => {
           </button>
         </div>
       ) : (
-        <div className="resumes-grid" style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', 
-          gap: '1.5rem' 
+        <div className="resumes-grid" style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+          gap: '1.5rem'
         }}>
           {resumes.map((resume, index) => (
             <motion.div
@@ -142,7 +142,7 @@ const HistoryPage = () => {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
                 <div style={{ flex: 1 }}>
                   <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.5rem' }}>
-                    <FiFileText style={{ verticalAlign: 'middle', marginRight: '0.5rem', color: 'var(--primaryAccent)' }} />
+                    <FiFileText style={{ verticalAlign: 'middle', marginRight: '0.5rem', color: '#0bdbb6' }} />
                     Resume {index + 1}
                   </h3>
                   <p className="text-muted" style={{ fontSize: '0.85rem' }}>
@@ -154,29 +154,35 @@ const HistoryPage = () => {
                 </div>
               </div>
 
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '0.75rem',
-                background: 'rgba(6, 182, 212, 0.1)',
-                borderRadius: '8px',
-                marginTop: '1rem'
+              <div className="snake-border-box" style={{
+                marginTop: '1rem',
+                borderRadius: '8px'
               }}>
-                <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>
-                  {resume.tailoredVersions?.length || 0} Tailored Versions
-                </span>
-                <button
-                  className="btn-secondary"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/tailor/${resume._id}`);
-                  }}
-                  style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}
-                >
-                  <FiZap /> Tailor
-                </button>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '0.75rem',
+                  background: '#ffffff',
+                  borderRadius: '8px',
+                }}>
+                  <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>
+                    {resume.tailoredVersions?.length || 0} Tailored Versions
+                  </span>
+
+                  <button
+                    className="btn-secondary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/tailor/${resume._id}`);
+                    }}
+                    style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}
+                  >
+                    <FiZap /> Tailor
+                  </button>
+                </div>
               </div>
+
             </motion.div>
           ))}
         </div>
@@ -324,7 +330,7 @@ const HistoryPage = () => {
                 </div>
               ) : (
                 <div style={{ textAlign: 'center', padding: '2rem' }}>
-                  <p className="text-muted">No tailored versions yet</p>
+                  <p className="text-white">No tailored versions yet</p>
                   <button
                     className="btn-primary"
                     onClick={() => {
@@ -344,10 +350,18 @@ const HistoryPage = () => {
                   setSelectedResume(null);
                   navigate(`/tailor/${selectedResume._id}`);
                 }}
-                style={{ width: '100%', marginTop: '2rem' }}
+                style={{
+                  width: '100%',
+                  marginTop: '2rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px'
+                }}
               >
                 <FiZap /> Tailor Again
               </button>
+
             </motion.div>
           </motion.div>
         )}

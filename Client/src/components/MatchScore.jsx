@@ -72,7 +72,7 @@ const tailoredPercentage = tailoredScore > 1
       style={{ padding: '2rem' }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-        <FiTarget style={{ fontSize: '1.5rem', color: 'var(--primaryAccent)' }} />
+        <FiTarget style={{ fontSize: '1.5rem', color: '#0bdbb6' }} />
         <h3 style={{ margin: 0 }}>Match Score Comparison</h3>
       </div>
 
@@ -136,7 +136,7 @@ const tailoredPercentage = tailoredScore > 1
           style={{ textAlign: 'center' }}
         >
           <p style={{ fontSize: '0.9rem', color: 'var(--success)', marginBottom: '1rem', fontWeight: 600 }}>
-            After Tailoring ✨
+            After Tailoring
           </p>
           <div className="score-gauge" style={{ display: 'inline-block' }}>
             <svg width="140" height="140" viewBox="0 0 140 140">

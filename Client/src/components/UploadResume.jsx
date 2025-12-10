@@ -21,7 +21,7 @@ const UploadResume = ({ onUploadComplete }) => {
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-    
+
     const droppedFile = e.dataTransfer.files[0];
     handleFileSelection(droppedFile);
   };
@@ -29,7 +29,10 @@ const UploadResume = ({ onUploadComplete }) => {
   const handleFileSelection = (selectedFile) => {
     if (!selectedFile) return;
 
-    const validTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    const validTypes = [
+      'application/pdf',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
     if (!validTypes.includes(selectedFile.type)) {
       alert('Please upload a PDF or DOCX file');
       return;
@@ -42,11 +45,11 @@ const UploadResume = ({ onUploadComplete }) => {
     if (!file) return;
 
     setUploading(true);
-    
+
     try {
       const formData = new FormData();
       formData.append('file', file);
-      
+
       await onUploadComplete(formData);
     } catch (error) {
       console.error('Upload failed:', error);
@@ -63,7 +66,6 @@ const UploadResume = ({ onUploadComplete }) => {
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        onClick={() => !file && fileInputRef.current?.click()}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
       >
@@ -74,13 +76,20 @@ const UploadResume = ({ onUploadComplete }) => {
           onChange={(e) => handleFileSelection(e.target.files[0])}
           style={{ display: 'none' }}
         />
-        
+
         {!file ? (
           <div className="upload-prompt">
             <FiUpload className="upload-icon" />
             <h3>Drag & Drop Resume</h3>
-            <p className="text-muted">or click to browse</p>
-            <span className="file-types">Supports PDF and DOCX</span>
+            <p className="text-muted">Supports PDF and DOCX</p>
+            <span className="file-types"></span>
+            {/* New Upload Button */}
+            <button
+              className="btn-browse"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              Upload Resume
+            </button>
           </div>
         ) : (
           <div className="file-selected">
