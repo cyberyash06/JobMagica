@@ -1,3 +1,4 @@
+// Client/src/api/resumeApi.js
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
@@ -36,12 +37,7 @@ export const uploadResume = async (formData) => {
   });
 };
 
-/**
- * Parse Resume
- */
-export const parseResume = async (resumeId) => {
-  return api.post(`/resumes/${resumeId}/parse`);
-};
+
 
 /**
  * ✅ Tailor Resume (PDF Overlay Method)

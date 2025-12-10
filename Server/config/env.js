@@ -18,8 +18,8 @@ requiredEnvVars.forEach(envVar => {
 });
 
 // Optional warnings
-if (!process.env.OPENAI_API_KEY) {
-  console.warn('⚠️  OPENAI_API_KEY not set - using placeholder AI functions');
+if (!process.env.GEMINI_AI_API_KEY) {
+  console.warn('⚠️  GEMINI_AI_API_KEY not set - using placeholder AI functions');
 }
 
 module.exports = {

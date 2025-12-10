@@ -1,3 +1,4 @@
+// Client/src/components/Sidebar.jsx
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,13 +19,7 @@ const Sidebar = () => {
       label: 'Upload',
       enabled: true // Always enabled
     },
-    { 
-      key: 'parsed',
-      path: currentResumeId ? `/parsed/${currentResumeId}` : '#', 
-      icon: FiFileText, 
-      label: 'Parsed',
-      enabled: currentResumeId !== null && ['parsed', 'tailor', 'history'].includes(workflowStep)
-    },
+    
     { 
       key: 'tailor',
       path: currentResumeId ? `/tailor/${currentResumeId}` : '#', 

@@ -1,3 +1,4 @@
+// Client/src/components/UploadResume.jsx
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { FiUpload, FiFile, FiCheck } from 'react-icons/fi';

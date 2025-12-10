@@ -1,3 +1,4 @@
+//resume.js
 const mongoose = require('mongoose');
 
 const resumeSchema = new mongoose.Schema({
@@ -21,50 +22,7 @@ const resumeSchema = new mongoose.Schema({
     // 1. Summary
     summary: String,
     
-    // 2. Skills
-    skills: [String],
     
-    // 3. Experience
-    experience: [{
-      title: String,
-      company: String,
-      duration: String,
-      location: String,
-      description: String
-    }],
-    
-    // 4. Projects
-    projects: [{
-      name: String,
-      description: String,
-      technologies: String,
-      link: String
-    }],
-    
-    // 5. Education
-    education: [{
-      degree: String,
-      institution: String,
-      year: String,
-      details: String
-    }],
-    
-    // 6. Certifications/Achievements
-    certifications: [{
-      title: String,
-      issuer: String,
-      year: String,
-      details: String
-    }],
-    
-    // 7. Languages
-    languages: [{
-      name: String,
-      proficiency: String
-    }],
-    
-    // 8. Hobbies/Interests
-    hobbies: [String],
     
     // Full text for reference
     fullText: String

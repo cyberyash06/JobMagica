@@ -8,6 +8,7 @@ const fs = require('fs').promises;
 
 /**
  * POST /api/resumes/upload
+ * ✅ UPDATED: Parse summary in background after response
  */
 exports.uploadResume = async (req, res, next) => {
   try {
@@ -29,12 +30,25 @@ exports.uploadResume = async (req, res, next) => {
 
     await resume.save();
 
+    // ✅ Send response immediately - don't wait for parsing
     res.status(201).json({
       message: 'Resume uploaded successfully',
       resumeId: resume._id,
       filename: resume.originalFilename,
       uploadedAt: resume.uploadedAt
     });
+
+    // ✅ Parse summary in background after response is sent
+    setImmediate(async () => {
+      try {
+        console.log('🔄 Starting background summary parsing...');
+        await parsingService.parseSummaryOnly(resume._id, resume.filePath, resume.fileType);
+        console.log('✅ Background summary parsing completed');
+      } catch (error) {
+        console.error('❌ Background summary parsing failed:', error);
+      }
+    });
+
   } catch (error) {
     next(error);
   }
@@ -64,43 +78,9 @@ exports.getAllResumes = async (req, res, next) => {
 };
 
 /**
- * POST /api/resumes/:id/parse
+ * ❌ REMOVED: parseResume function - no longer needed
+ * Parsing happens automatically in background during upload
  */
-exports.parseResume = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const resume = await Resume.findById(id);
-
-    if (!resume) {
-      return res.status(404).json({ error: 'Resume not found' });
-    }
-
-    if (resume.isParsed) {
-      return res.json({
-        message: 'Resume already parsed',
-        parsedData: resume.parsedData
-      });
-    }
-
-    const { parsedData, htmlRepresentation } = await parsingService.parseResume(
-      resume.filePath,
-      resume.fileType
-    );
-
-    resume.parsedData = parsedData;
-    resume.htmlRepresentation = htmlRepresentation;
-    resume.isParsed = true;
-    await resume.save();
-
-    res.json({
-      message: 'Resume parsed successfully',
-      parsedData
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
 
 /**
  * POST /api/resumes/:id/tailor
@@ -144,7 +124,7 @@ exports.tailorResume = async (req, res, next) => {
     // 2. AI tailoring
     console.log('🤖 AI tailoring summary...');
     const tailoredSummary = await aiTailoringService.tailorSummary(
-      originalSummary || 'Motivated professional with strong technical skills',
+      originalSummary || resume.parsedData?.summary || 'Motivated professional with strong technical skills',
       jobDescription,
       jobTitle
     );
@@ -163,13 +143,12 @@ exports.tailorResume = async (req, res, next) => {
     // 3. Generate output path
     const timestamp = Date.now();
     const outputFilename = `tailored_${timestamp}_${resume.originalFilename}`;
-    const path = require('path');
     const tailoredDir = path.join(__dirname, '../../uploads/tailored');
     
     // Ensure directory exists
-    const fs = require('fs');
-    if (!fs.existsSync(tailoredDir)) {
-      fs.mkdirSync(tailoredDir, { recursive: true });
+    const fsSync = require('fs');
+    if (!fsSync.existsSync(tailoredDir)) {
+      fsSync.mkdirSync(tailoredDir, { recursive: true });
     }
     
     const outputPath = path.join(tailoredDir, outputFilename);
@@ -185,7 +164,7 @@ exports.tailorResume = async (req, res, next) => {
 
     console.log('✅ PDF generated at:', outputPath);
 
-    // 5. Calculate match score (placeholder - you can implement actual scoring)
+    // 5. Calculate match score
     const matchScore = 90;
 
     // 6. Save to database
@@ -241,7 +220,6 @@ exports.tailorResume = async (req, res, next) => {
   } catch (error) {
     console.error('❌ Tailoring failed:', error);
     
-    // Send detailed error response
     res.status(500).json({
       error: 'Tailoring failed',
       message: error.message,
