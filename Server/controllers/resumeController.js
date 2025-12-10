@@ -9,6 +9,7 @@ const fsSync = require('fs'); // For sync checks and mkdirSync
 
 /**
  * POST /api/resumes/upload
+ * ✅ UPDATED: Parse summary in background after response
  */
 exports.uploadResume = async (req, res, next) => {
   try {
@@ -33,12 +34,25 @@ exports.uploadResume = async (req, res, next) => {
 
     await resume.save();
 
+    // ✅ Send response immediately - don't wait for parsing
     res.status(201).json({
       message: 'Resume uploaded successfully',
       resumeId: resume._id,
       filename: resume.originalFilename,
       uploadedAt: resume.uploadedAt
     });
+
+    // ✅ Parse summary in background after response is sent
+    setImmediate(async () => {
+      try {
+        console.log('🔄 Starting background summary parsing...');
+        await parsingService.parseSummaryOnly(resume._id, resume.filePath, resume.fileType);
+        console.log('✅ Background summary parsing completed');
+      } catch (error) {
+        console.error('❌ Background summary parsing failed:', error);
+      }
+    });
+
   } catch (error) {
     next(error);
   }
@@ -68,7 +82,8 @@ exports.getAllResumes = async (req, res, next) => {
 };
 
 /**
- * POST /api/resumes/:id/parse
+ * ❌ REMOVED: parseResume function - no longer needed
+ * Parsing happens automatically in background during upload
  */
 exports.parseResume = async (req, res, next) => {
   try {
@@ -147,7 +162,7 @@ exports.tailorResume = async (req, res, next) => {
     // 2. AI tailoring
     console.log('🤖 AI tailoring summary...');
     const tailoredSummary = await aiTailoringService.tailorSummary(
-      originalSummary || 'Motivated professional with strong technical skills',
+      originalSummary || resume.parsedData?.summary || 'Motivated professional with strong technical skills',
       jobDescription,
       jobTitle
     );

@@ -1,3 +1,4 @@
+//TailoredResume.js
 const mongoose = require('mongoose');
 
 const tailoredResumeSchema = new mongoose.Schema({

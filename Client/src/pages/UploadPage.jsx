@@ -1,8 +1,10 @@
+// Client/src/pages/UploadPage.jsx
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import UploadResume from '../components/UploadResume';
-import { uploadResume, parseResume } from '../api/resumeApi';
+import { uploadResume } from '../api/resumeApi';
 import { useResume } from '../context/ResumeContext';
 
 const UploadPage = () => {
@@ -17,20 +19,20 @@ const UploadPage = () => {
   const handleUploadComplete = async (formData) => {
     setLoading(true);
     try {
-      // Upload file
+      // ✅ UPDATED: Only upload file (parsing happens automatically in background)
       const uploadResponse = await uploadResume(formData);
       const { resumeId } = uploadResponse.data;
 
-      // Automatically parse after upload
-      await parseResume(resumeId);
+      // ❌ REMOVED: await parseResume(resumeId); - No longer needed!
 
       startNewResume(resumeId);
 
-      // Navigate to parsed page
-      navigate(`/parsed/${resumeId}`);
+      // ✅ UPDATED: Navigate directly to tailor page (skip parsed page)
+      navigate(`/tailor/${resumeId}`);
+      
     } catch (error) {
-      console.error('Upload/Parse error:', error);
-      alert('Failed to process resume. Please try again.');
+      console.error('Upload error:', error);
+      alert('Failed to upload resume. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -62,8 +64,8 @@ const UploadPage = () => {
         >
           <div className="glass-card processing-card">
             <div className="spinner-large" />
-            <h3>Processing Your Resume...</h3>
-            <p className="text-muted">Extracting and parsing content</p>
+            <h3>Uploading Your Resume...</h3>
+            <p className="text-muted">Processing in background...</p>
           </div>
         </motion.div>
       )}

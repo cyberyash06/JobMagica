@@ -37,7 +37,10 @@ const upload = multer({
 // ✅ Resume routes
 router.post('/upload', upload.single('file'), resumeController.uploadResume);
 router.get('/', resumeController.getAllResumes);
-router.post('/:id/parse', resumeController.parseResume);
+
+// ❌ REMOVED: Parse route - parsing happens automatically in background
+// router.post('/:id/parse', resumeController.parseResume);
+
 router.post('/:id/tailor', resumeController.tailorResume);
 router.get('/:id/history', resumeController.getResumeHistory);
 router.get('/:id/preview', resumeController.previewResume);

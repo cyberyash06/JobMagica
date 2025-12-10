@@ -3,7 +3,54 @@ const mammoth = require('mammoth');
 const fs = require('fs').promises;
 
 /**
- * ✅ COMPLETE: Parse all 8 headings separately
+ * ✅ NEW: Parse only summary in background (not all 8 sections)
+ */
+exports.parseSummaryOnly = async (resumeId, filePath, fileType) => {
+  console.log('🔍 Background: Parsing summary only for resume ID:', resumeId);
+  
+  try {
+    let extractedText = '';
+    
+    if (fileType === 'pdf') {
+      const result = await parsePDF(filePath);
+      extractedText = result.text;
+    } else if (fileType === 'docx') {
+      const result = await parseDOCX(filePath);
+      extractedText = result.text;
+    }
+
+    const summary = extractSummary(extractedText);
+    
+    console.log('📝 Extracted summary:', summary ? `${summary.substring(0, 100)}...` : 'No summary found');
+    
+    // Update resume in database with parsed summary
+    const Resume = require('../models/Resume');
+    await Resume.findByIdAndUpdate(resumeId, {
+      'parsedData.summary': summary || '',
+      'parsedData.fullText': extractedText,
+      isParsed: true
+    });
+    
+    console.log('✅ Summary parsed and saved to database');
+    return summary;
+    
+  } catch (error) {
+    console.error('❌ Summary parsing failed:', error);
+    
+    // Update resume with error
+    const Resume = require('../models/Resume');
+    await Resume.findByIdAndUpdate(resumeId, {
+      parseError: error.message,
+      isParsed: false
+    });
+    
+    throw error;
+  }
+};
+
+/**
+ * ⚠️ DEPRECATED: Full parsing (keeping for backward compatibility if needed)
+ * This function is no longer used in the main flow
  */
 exports.parseResume = async (filePath, fileType) => {
   let extractedText = '';
@@ -52,21 +99,19 @@ async function parseDOCX(filePath) {
 }
 
 /**
- * ✅ NEW: Extract all 8 headings with structure
+ * Extract all 8 headings with structure (kept for backward compatibility)
  */
 function extractAllHeadings(text) {
   console.log('📋 Parsing all 8 resume sections...');
 
   const normalizedText = text.replace(/\r\n/g, '\n').trim();
 
-  // Contact info
   const name = extractName(normalizedText);
   const email = extractEmail(normalizedText);
   const phone = extractPhone(normalizedText);
   const linkedin = extractLinkedIn(normalizedText);
   const location = extractLocation(normalizedText);
 
-  // ✅ ALL 8 HEADINGS
   const summary = extractSummary(normalizedText);
   const skills = extractSkills(normalizedText);
   const experience = extractExperience(normalizedText);
@@ -86,7 +131,6 @@ function extractAllHeadings(text) {
   console.log(`   7. Languages: ${languages.length || 0} languages`);
   console.log(`   8. Hobbies: ${hobbies.length || 0} items`);
 
-  // ✅ Return with ALL headings (empty if not found)
   return {
     name,
     email,
@@ -279,7 +323,6 @@ function extractLanguages(text) {
   const languages = langText.split(/[,•\n]/).map(l => l.trim()).filter(l => l.length > 0);
   
   return languages.map(lang => {
-    // Try to extract language and proficiency
     const parts = lang.split(/[-–—:]/);
     return {
       name: parts[0]?.trim() || lang,

@@ -1,3 +1,4 @@
+// Server/services/aitailoringService.js
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_AI_API_KEY);
@@ -7,7 +8,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_AI_API_KEY);
  */
 exports.tailorSummary = async (originalSummary, jobDescription, jobTitle) => {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
 
     const prompt = `
 You are an expert resume writer. Tailor this professional summary to match the job requirements.
@@ -33,14 +34,20 @@ ${jobDescription}
 
     console.log('🤖 Calling Gemini API for summary...');
     const result = await model.generateContent(prompt);
-    const response = result.response.text().trim();
-    console.log('✅ Gemini response received');
-    
-    return response;
-    
+
+    // Some Gemini SDK variants provide text differently; keep defensive here
+    const rawText = typeof result.response.text === 'function'
+      ? result.response.text()
+      : (result.response || result).text || '';
+
+    // Remove invisible/zero-width chars and trim
+    const response = rawText.replace(/[\u200B-\u200F\uFEFF]/g, '').trim();
+
+    console.log('✅ Gemini response received:', response.slice(0, 200));
+    return response || originalSummary; // fall back if empty
+
   } catch (error) {
-    console.error('❌ AI Summary Tailoring Error:', error.message);
-    
+    console.error('❌ AI Summary Tailoring Error:', error.message || error);
     // Return original summary as fallback
     console.log('⚠️ Falling back to original summary');
     return originalSummary;
@@ -52,7 +59,7 @@ ${jobDescription}
  */
 exports.tailorSkills = async (originalSkills, jobDescription) => {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
 
     const prompt = `
 You are an expert resume optimizer. Reorder and optimize this skills list to match the job requirements.
@@ -76,20 +83,28 @@ ${jobDescription}
 
     console.log('🤖 Calling Gemini API for skills...');
     const result = await model.generateContent(prompt);
-    const tailoredSkillsText = result.response.text().trim();
-    console.log('✅ Gemini response received');
+
+    const rawText = typeof result.response.text === 'function'
+      ? result.response.text()
+      : (result.response || result).text || '';
+
+    // Remove zero-width/invisible characters and trim
+    const tailoredSkillsText = rawText.replace(/[\u200B-\u200F\uFEFF]/g, '').trim();
+    console.log('✅ Gemini response received (skills):', tailoredSkillsText.slice(0, 200));
 
     const skillsArray = tailoredSkillsText
       .split(/[,\n]/)
       .map(s => s.trim().replace(/^[-•\d.)\]]+\s*/, ''))
-      .filter(s => s.length > 0 && s.length < 50)
+      .filter(s => s.length > 0 && s.length < 60)
       .slice(0, 15);
 
-    return skillsArray.length > 0 ? skillsArray : originalSkills.split(',').map(s => s.trim()).slice(0, 15);
-    
+    if (skillsArray.length > 0) return skillsArray;
+
+    // fallback parse original
+    return originalSkills.split(/[,\n]/).map(s => s.trim()).filter(Boolean).slice(0, 15);
+
   } catch (error) {
-    console.error('❌ AI Skills Tailoring Error:', error.message);
-    
+    console.error('❌ AI Skills Tailoring Error:', error.message || error);
     // Return original skills as fallback
     console.log('⚠️ Falling back to original skills');
     const fallbackSkills = originalSkills.split(/[,\n]/).map(s => s.trim()).filter(s => s.length > 0).slice(0, 15);

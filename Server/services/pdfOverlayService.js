@@ -1,3 +1,4 @@
+// Server/services/pdfOverlayService.js
 const fs = require('fs').promises;
 const { PDFDocument, rgb, StandardFonts } = require('pdf-lib');
 const pdfjsLib = require('pdfjs-dist/legacy/build/pdf.js');
@@ -33,7 +34,7 @@ async function extractAllTextItems(pdfPath) {
       useSystemFonts: true,
       canvasFactory: new NodeCanvasFactory()
     });
-    
+
     const pdfDocument = await loadingTask.promise;
     const page = await pdfDocument.getPage(1); // Only first page
     const textContent = await page.getTextContent();
@@ -44,10 +45,16 @@ async function extractAllTextItems(pdfPath) {
       if (!item.str || item.str.trim().length === 0) return;
 
       const transform = item.transform;
+      const rawX = transform[4];
+      const rawY = transform[5]; // this is the PDF.js transform y (baseline/top depending on font)
+      // Convert rawY to bottom-left origin (pdf-lib uses bottom-left origin too)
+      const convertedY = viewport.height - rawY;
+
       items.push({
         text: item.str.trim(),
-        x: transform[4],
-        y: transform[5], // Y from bottom
+        x: rawX,
+        y: convertedY,         // converted y (bottom-left origin)
+        rawY,
         fontSize: Math.sqrt(transform[0] * transform[0] + transform[1] * transform[1]),
         pageHeight: viewport.height
       });
@@ -67,7 +74,7 @@ async function extractAllTextItems(pdfPath) {
  */
 function findSectionBoundaries(items, sectionName) {
   const normalizedSection = sectionName.toLowerCase();
-  
+
   // Section header keywords
   const sectionKeywords = {
     'summary': ['professional summary', 'summary', 'objective', 'profile'],
@@ -98,14 +105,14 @@ function findSectionBoundaries(items, sectionName) {
   const allSectionStarters = [
     'summary', 'professional summary', 'objective',
     'skills', 'technical skills', 'core competencies',
-    'experience', 'work experience', 'projects', 
+    'experience', 'work experience', 'projects',
     'education', 'certifications', 'internship'
   ];
 
   let nextHeadingIndex = -1;
   for (let i = headingIndex + 1; i < items.length; i++) {
     const text = items[i].text.toLowerCase();
-    
+
     // Check if this is a different section heading
     const isNewSection = allSectionStarters.some(starter => {
       const matches = text.includes(starter) || text === starter;
@@ -138,11 +145,17 @@ function findSectionBoundaries(items, sectionName) {
   const minY = Math.min(...yValues);
   const maxY = Math.max(...yValues);
 
+  // Ensure box size has reasonable padding and not inverted
+  const paddingX = 5;
+  const paddingY = 5;
+  const computedWidth = Math.max(40, (maxX - minX) + 50); // ensure min width
+  const computedHeight = Math.max(24, (maxY - minY) + 20); // ensure min height
+
   const boundingBox = {
-    x: minX - 5,
-    y: minY - 5,
-    width: (maxX - minX) + 50, // Add padding
-    height: (maxY - minY) + 20
+    x: Math.max(0, minX - paddingX),
+    y: Math.max(0, minY - paddingY),
+    width: computedWidth,
+    height: computedHeight
   };
 
   const content = sectionItems.map(item => item.text).join(' ').trim();
@@ -164,20 +177,18 @@ function findSectionBoundaries(items, sectionName) {
 }
 
 /**
- * Wrap text to fit width
+ * Wrap text to fit width using font metrics (pdf-lib font.widthOfTextAtSize)
  */
-function wrapText(text, maxWidth, fontSize) {
+function wrapText(text, maxWidth, font, fontSize) {
   const cleanText = text.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
   const words = cleanText.split(' ');
   const lines = [];
   let currentLine = '';
 
-  const avgCharWidth = fontSize * 0.55;
-  const maxCharsPerLine = Math.floor(maxWidth / avgCharWidth);
-
   words.forEach(word => {
-    const testLine = currentLine + (currentLine ? ' ' : '') + word;
-    if (testLine.length > maxCharsPerLine && currentLine) {
+    const testLine = currentLine ? `${currentLine} ${word}` : word;
+    const testWidth = font.widthOfTextAtSize(testLine, fontSize);
+    if (testWidth > maxWidth && currentLine) {
       lines.push(currentLine);
       currentLine = word;
     } else {
@@ -193,33 +204,52 @@ function wrapText(text, maxWidth, fontSize) {
  * Replace text in bounding box
  */
 function replaceInBox(page, box, newText, font, fontSize, pageHeight) {
-  // Convert Y coordinate (pdfjs gives Y from bottom, we need Y from bottom)
-  const y = box.y;
+  // box.y is already bottom-left origin (because we converted in extraction)
+  let y = box.y;
 
-  console.log(`   Replacing at: x=${box.x.toFixed(1)}, y=${y.toFixed(1)}, w=${box.width.toFixed(1)}, h=${box.height.toFixed(1)}`);
+  // Clamp width/height to avoid tiny/negative boxes
+  const width = Math.max(40, Math.round(box.width));
+  const height = Math.max(24, Math.round(box.height));
 
-  // White out
+  console.log(`   Replacing at: x=${box.x.toFixed(1)}, y=${y.toFixed(1)}, w=${width.toFixed(1)}, h=${height.toFixed(1)}`);
+
+  // White out background first (draw behind)
   page.drawRectangle({
     x: box.x,
     y: y,
-    width: box.width,
-    height: box.height,
+    width,
+    height,
     color: rgb(1, 1, 1),
     opacity: 1
   });
 
-  // Wrap text
-  const lines = wrapText(newText, box.width - 10, fontSize);
-  const lineHeight = fontSize * 1.3;
-  const maxLines = Math.floor((box.height - 10) / lineHeight);
+  // Clean text: remove zero-widths and trim
+  const cleanedText = (newText || '').replace(/[\u200B-\u200F\uFEFF]/g, '').trim() || '';
 
-  console.log(`   Drawing ${Math.min(lines.length, maxLines)} lines`);
+  // Wrap text using font metrics so width calculation is accurate
+  const maxTextWidth = Math.max(10, width - 10);
+  const lines = wrapText(cleanedText, maxTextWidth, font, fontSize);
+  const lineHeight = fontSize * 1.25;
+  const maxLines = Math.floor((height - 10) / lineHeight);
 
-  // Draw text
-  let yPos = y + box.height - 12;
+  console.log(`   Drawing up to ${maxLines} lines (calculated), actual lines: ${lines.length}`);
+
+  // If there are no lines (empty), skip drawing text
+  if (lines.length === 0) return;
+
+  // PDF baseline: y coordinate is baseline. We want first baseline to be slightly below top of box.
+  const topPadding = 8;
+  const ascentAdjustment = fontSize * 0.15; // tune if necessary
+  let yPos = y + height - topPadding - ascentAdjustment;
+
   lines.slice(0, maxLines).forEach((line, index) => {
     if (index === maxLines - 1 && lines.length > maxLines) {
-      line = line.substring(0, line.length - 3) + '...';
+      // add ellipsis in a width-safe way: trim until it fits with '...'
+      let truncated = line;
+      while (font.widthOfTextAtSize(`${truncated}...`, fontSize) > maxTextWidth && truncated.length > 0) {
+        truncated = truncated.slice(0, -1);
+      }
+      line = `${truncated}...`;
     }
 
     page.drawText(line, {
@@ -227,8 +257,10 @@ function replaceInBox(page, box, newText, font, fontSize, pageHeight) {
       y: yPos,
       size: fontSize,
       font,
-      color: rgb(0, 0, 0)
+      color: rgb(0, 0, 0),
+      maxWidth: maxTextWidth
     });
+
     yPos -= lineHeight;
   });
 }
@@ -247,6 +279,9 @@ exports.generateTailoredPdfWithOverlay = async (
 
     // 1. Extract all text items
     const { items, pageHeight } = await extractAllTextItems(originalPdfPath);
+
+    // optional debug: see a few extracted items
+    console.log('DEBUG extracted items sample:', items.slice(0, 6));
 
     // 2. Find ONLY Summary section
     console.log('🔍 Finding Summary section...');
@@ -268,6 +303,24 @@ exports.generateTailoredPdfWithOverlay = async (
     const firstPage = pages[0];
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const fontSize = 10;
+
+    // debug: draw red rectangle for the extracted summary to validate coords
+    // Uncomment to see a red border where the service thinks the section is.
+    /*
+    if (summarySection) {
+      const dbgBox = summarySection.boundingBox;
+      firstPage.drawRectangle({
+        x: dbgBox.x,
+        y: dbgBox.y,
+        width: Math.max(40, dbgBox.width),
+        height: Math.max(24, dbgBox.height),
+        borderColor: rgb(1, 0, 0),
+        borderWidth: 1,
+        color: undefined
+      });
+      console.log('DEBUG: drew red rectangle for summary bbox');
+    }
+    */
 
     // 5. Replace Summary
     if (summarySection && tailoredSummary) {

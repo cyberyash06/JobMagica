@@ -1,3 +1,4 @@
+// Client/src/components/ParsedResumeCard.jsx
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiUser, FiMail, FiPhone, FiLinkedin, FiChevronDown, FiChevronUp } from 'react-icons/fi';
