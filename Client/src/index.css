@@ -18,9 +18,13 @@
 }
 
 [data-theme="dark"] {
-  --cardBg: rgba(15, 23, 42, 0.6);
-  --glassBorder: rgba(148, 163, 184, 0.1);
-  --mutedText: #94a3b8;
+  --cardBg: rgba(30, 41, 59, 0.6) !important; 
+  --glassBorder: rgba(255, 255, 255, 0.1);       
+  --mutedText: #cbd5e1;                         
+}
+
+[data-theme="dark"] h1{
+color: white !important;
 }
 
 /* ========================================
@@ -91,6 +95,14 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+@media (min-width: 320px) and (max-width: 430px) {
+    .page-header h1 {
+        font-size: 1.3rem;
+        margin-top: 20px; 
+        margin-bottom: 0.3rem; 
+    }
 }
 
 /* ========================================
@@ -465,17 +477,16 @@ h3 {
 .mobile-menu-btn {
   display: none;
   position: fixed;
-  top: 1rem;
-  left: 1rem;
-  z-index: 200;
-  background: var(--cardBg);
+  /* top: 1rem;
+  left: 1rem; */
+  /* background: var(--cardBg);
   backdrop-filter: blur(20px);
-  border: 1px solid var(--glassBorder);
+  border: 1px solid var(--glassBorder); */
   border-radius: 12px;
   padding: 0.75rem;
   cursor: pointer;
   font-size: 1.5rem;
-  color: var(--primaryAccent);
+  color:#0bdbb6;
 }
 
 .sidebar-overlay {
@@ -652,6 +663,7 @@ h3 {
   font-size: 24px;
   font-weight: 700;
   margin: 0;
+  color: black;
 }
 
 /* Section */
@@ -931,3 +943,226 @@ h3 {
 .result-actions{
   margin-top: 2rem;
 }
+
+/* =============================
+         DARK MODE 
+=============================*/
+
+.modal-content {
+  background: rgba(9, 200, 166, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+[data-theme="dark"] .page-header h1 {
+  background: none !important;
+  -webkit-text-fill-color: #fff !important;
+  color: #fff !important;
+}
+.logo {
+  color: #000 !important;
+}
+
+[data-theme="dark"] .logo {
+  color: #fff !important;
+}
+
+[data-theme="dark"] .tailor-count {
+  color: #000 !important;
+}
+
+[data-theme="dark"] .parsed-resume-card.glass-card {
+  background: var(--cardBg) !important;
+  border: 1px solid var(--glassBorder) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #fff !important;
+}
+
+/* Header Icon + Title */
+[data-theme="dark"] .parsed-resume-card .resume-header h2 {
+  color: #fff !important;
+}
+
+[data-theme="dark"] .parsed-resume-card .resume-header .header-icon {
+  color: #fff !important;
+}
+
+/* Section header buttons */
+[data-theme="dark"] .parsed-resume-card .section-header h3 {
+  color: #fff !important;
+}
+
+[data-theme="dark"] .parsed-resume-card .section-header svg {
+  color: #fff !important;
+}
+
+/* Count Badge */
+[data-theme="dark"] .parsed-resume-card .count-badge {
+  background: rgba(255,255,255,0.1) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255,255,255,0.2) !important;
+}
+
+/* Section Content Text */
+[data-theme="dark"] .parsed-resume-card .section-content,
+[data-theme="dark"] .parsed-resume-card .section-content * {
+  color: #e2e8f0 !important;
+}
+
+/* Skill tags */
+[data-theme="dark"] .parsed-resume-card .skill-tag {
+  background: rgba(255,255,255,0.08) !important;
+  border: 1px solid rgba(255,255,255,0.15) !important;
+  color: #fff !important;
+}
+
+/* Experience/Education Titles */
+[data-theme="dark"] .parsed-resume-card h4 {
+  color: #fff !important;
+}
+
+/* Muted text */
+[data-theme="dark"] .parsed-resume-card .text-muted {
+  color: #94a3b8 !important;
+}
+
+/* Experience card inner white background fix */
+[data-theme="dark"] .experience-item {
+  background: var(--glassCard) !important; 
+  border: 1px solid var(--glassBorder) !important;
+  color: #e2e8f0 !important;
+}
+
+/* Experience item headings */
+[data-theme="dark"] .experience-item h4 {
+  color: #fff !important;
+}
+
+/* Company text */
+[data-theme="dark"] .experience-item .company {
+  color: #cbd5e1 !important;
+}
+
+/* Description text */
+[data-theme="dark"] .experience-item .description {
+  color: #e2e8f0 !important;
+}
+
+/* White box remove */
+[data-theme="dark"] .education-item {
+  background: var(--glassCard) !important;
+  border: 1px solid var(--glassBorder) !important;
+  padding: 14px 16px !important;
+  border-radius: 12px !important;
+}
+
+/* Education name */
+[data-theme="dark"] .education-item h4 {
+  color: #fff !important;
+}
+
+/* Institution */
+[data-theme="dark"] .education-item .institution {
+  color: #e2e8f0 !important;
+}
+
+/* Year text */
+[data-theme="dark"] .education-item .year {
+  color: #94a3b8 !important;
+}
+
+/* FULL JOB INPUT CARD FIX */
+[data-theme="dark"] .job-input-card {
+  background: var(--cardBg) !important;
+  border: 1px solid var(--glassBorder) !important;
+  color: #e2e8f0 !important; /* text visible */
+  backdrop-filter: blur(20px);
+}
+
+/* Heading (h3) */
+[data-theme="dark"] .job-input-card h3 {
+  color: #fff !important;
+}
+
+/* Label */
+[data-theme="dark"] .job-input-card label {
+  color: #e2e8f0 !important;
+}
+
+/*  Input Fields (text + textarea) */
+[data-theme="dark"] .job-input-card .glass-input,
+[data-theme="dark"] .job-input-card .glass-textarea {
+  background: rgba(255, 255, 255, 0.05) !important; 
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
+}
+
+/* Placeholder color */
+[data-theme="dark"] .job-input-card .glass-input::placeholder,
+[data-theme="dark"] .job-input-card .glass-textarea::placeholder {
+  color: #94a3b8 !important; 
+}
+
+/* Character count */
+[data-theme="dark"] .job-input-card .char-count {
+  color: #cbd5e1 !important;
+}
+
+/* Hint inside label */
+[data-theme="dark"] .job-input-card .label-hint {
+  color: #94a3b8 !important;
+}
+[data-theme="dark"] .keyword-preview {
+  background: var(--cardBg) !important;
+  border: 1px solid var(--glassBorder) !important;
+  backdrop-filter: blur(10px);
+}
+
+/* Keyword tags dark mode */
+[data-theme="dark"] .keyword-preview .keyword-tag {
+  background: rgba(255,255,255,0.08) !important;
+  color: #fff !important;
+}
+
+/* H4 heading dark mode */
+[data-theme="dark"] .keyword-preview h4 {
+  color: #fff !important;
+}
+
+/* Tailored Versions top bar fix */
+[data-theme="dark"] .tailor-count,
+[data-theme="dark"] .btn-secondary {
+  color: #fff !important;
+}
+
+[data-theme="dark"] .btn-secondary svg {
+  color: #fff !important;
+}
+
+/* Div background fix */
+[data-theme="dark"] .tailor-count,
+[data-theme="dark"] .btn-secondary {
+  z-index: 2;
+}
+
+/* Main wrapper override */
+[data-theme="dark"] .tailor-wrapper {
+  background: var(--glassCard) !important;
+  border: 1px solid var(--glassBorder) !important;
+}
+
+/* Forcing override on inline background */
+[data-theme="dark"] div[style*="background: rgb(255, 255, 255"] {
+  background: var(--glassCard) !important;
+  border: 1px solid var(--glassBorder) !important;
+}
+
+@media (min-width: 320px) and (max-width: 430px) {
+    .page-header h1 {
+        font-size: 1.3rem; /* chhota font size mobile ke liye */
+        margin-top: 20px; /* agar zarurat ho */
+        margin-bottom: 0.3rem; /* chhota spacing */
+    }
+}
+

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // ✅ Added useEffect
 import { NavLink } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiUpload, FiFileText, FiZap, FiClock, FiMenu, FiX } from 'react-icons/fi';
@@ -8,6 +8,15 @@ import { useResume } from '../context/ResumeContext';
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { currentResumeId, workflowStep } = useResume();
+
+  // ✅ State for window width to handle mobile view properly
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Fixed navigation items - paths don't change
   const navItems = [
@@ -48,8 +57,8 @@ const Sidebar = () => {
       e.preventDefault();
       return;
     }
-    if (window.innerWidth <= 768) {
-      setIsOpen(false);
+    if (windowWidth <= 768) {
+      setIsOpen(false); // close sidebar on mobile after click
     }
   };
 
@@ -59,23 +68,23 @@ const Sidebar = () => {
       <button 
         className="mobile-menu-btn" 
         onClick={toggleSidebar}
-        style={{ display: window.innerWidth <= 768 ? 'block' : 'none' }}
+        style={{ display: windowWidth <= 768 ? 'block' : 'none' }}
       >
         {isOpen ? <FiX /> : <FiMenu />}
       </button>
 
       {/* Sidebar */}
       <AnimatePresence>
-        {(isOpen || window.innerWidth > 768) && (
+        {(isOpen || windowWidth > 768) && (
           <motion.aside
             className="sidebar glass-card"
-            initial={{ x: -280 }}
+            initial={{ x: windowWidth <= 768 ? -280 : 0 }} // mobile slide from left
             animate={{ x: 0 }}
-            exit={{ x: -280 }}
+            exit={{ x: windowWidth <= 768 ? -280 : 0 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           >
             <div className="sidebar-header">
-              <h2 className="logo !text-black">
+              <h2 className="logo">
                 JobMagica
               </h2>
               <p className="logo-subtitle">Resume Tailoring</p>
@@ -84,7 +93,7 @@ const Sidebar = () => {
             <nav className="sidebar-nav">
               {navItems.map((item) => (
                 <NavLink
-                  key={item.key} // ✅ Use stable key, not path
+                  key={item.key} 
                   to={item.path}
                   className={({ isActive }) =>
                     `nav-item ${isActive ? 'active' : ''} ${!item.enabled ? 'disabled' : ''}`
@@ -110,7 +119,7 @@ const Sidebar = () => {
       </AnimatePresence>
 
       {/* Overlay for mobile */}
-      {isOpen && window.innerWidth <= 768 && (
+      {isOpen && windowWidth <= 768 && (
         <motion.div
           className="sidebar-overlay"
           initial={{ opacity: 0 }}

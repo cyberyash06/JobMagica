@@ -166,9 +166,10 @@ const HistoryPage = () => {
                   background: '#ffffff',
                   borderRadius: '8px',
                 }}>
-                  <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>
+                  <span className="tailor-count" style={{ fontSize: '0.9rem', fontWeight: 600 }}>
                     {resume.tailoredVersions?.length || 0} Tailored Versions
                   </span>
+
 
                   <button
                     className="btn-secondary"
@@ -223,7 +224,8 @@ const HistoryPage = () => {
                 maxHeight: '80vh',
                 overflow: 'auto',
                 padding: '2rem',
-                position: 'relative'
+                position: 'relative',
+
               }}
             >
               <button
@@ -245,7 +247,7 @@ const HistoryPage = () => {
               <h2 style={{ marginBottom: '0.5rem' }}>
                 {selectedResume.originalFilename}
               </h2>
-              <p className="text-muted" style={{ marginBottom: '2rem' }}>
+              <p className="text-muted !text-[#e5e5e5]" style={{ marginBottom: '2rem' }}>
                 Uploaded: {formatDate(selectedResume.uploadedAt)}
               </p>
 
@@ -266,13 +268,14 @@ const HistoryPage = () => {
                       }}
                     >
                       <div style={{ flex: 1 }}>
-                        <h4 style={{ fontWeight: 600, marginBottom: '0.25rem' }}>
+                        <h4 style={{ fontWeight: 600, marginBottom: '0.25rem', color: 'white' }}>
                           {tailored.jobTitle}
                         </h4>
-                        <p className="text-muted" style={{ fontSize: '0.9rem' }}>
+                        <p className="text-muted !text-[#e5e5e5]" style={{ fontSize: '0.9rem' }}>
                           {tailored.company}
                         </p>
-                        <p className="text-muted" style={{ fontSize: '0.8rem', marginTop: '0.25rem' }}>
+                        <p className="text-muted !text-[#e5e5e5]
+                        " style={{ fontSize: '0.8rem', marginTop: '0.25rem' }}>
                           {formatDate(tailored.createdAt)}
                         </p>
                       </div>
